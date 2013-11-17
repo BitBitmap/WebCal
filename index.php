@@ -49,3 +49,4 @@ if(!isset($_SESSION)){
 		<script src="http://code.jquery.com/jquery.js"></script>
     	<script src="js/bootstrap.js"></script>
     </body>
+    </html>
