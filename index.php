@@ -16,9 +16,6 @@
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
           <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="#">WebCal</a>
       </div>
@@ -44,7 +41,7 @@
 <div class="container" style="padding-top: 60px;">
  <div class="row">
   <div class="span12">
-   <strong><h1>WebCal</h1><strong>
+   <h1>WebCal</h1>
      <p class="lead">
       Welcome to WebCal! WebCal is a web-based calendar system to help people keep
       track of and schedule events.
