@@ -5,7 +5,6 @@
   <title>WebCal</title>
   <!--Stylesheets-->
   <link href="css/bootstrap.css" rel="stylesheet">
-</style>
   <!--Javascript-->
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="js/bootstrap.min.js"></script>
