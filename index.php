@@ -1,3 +1,22 @@
+<?PHP error_reporting(-1); ?>
+<?php
+require_once('mysql.php');
+
+if (isset($_POST['pid']) && isset($_POST['password'])){
+  if($stmt = $mysqli -> prepare("SELECT pid, fname, lname FROM person WHERE pid=? AND passwd=?")){
+    $stmt -> bind_param("ss", $_POST['pid'], hash("md5", $_POST['password']));
+    $stmt -> execute();
+    $stmt -> bind_result($pid, $fname, $lname);
+    $stmt -> fetch();
+
+    $_SESSION['pid'] = $pid;
+    $_SESSION['fname'] = $fname;
+    $_SESSION['lname'] = $lname;
+  }
+
+}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,45 +28,22 @@
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="js/bootstrap.min.js"></script>
 </head>
-
 <body>
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-        </button>
-        <a class="navbar-brand" href="#">WebCal</a>
+<?php require_once('navbar.php'); ?>
+  <div class="container" style="padding-top: 60px;">
+    <div class="row">
+      <div class="span12">
+        <h1>WebCal</h1>
+        <p class="lead">
+          Welcome to WebCal! WebCal is a web-based calendar system to help people keep
+          track of and schedule events.
+<?php
+if(isset($_SESSION['pid']))
+  echo $_SESSION['pid'];
+?>
+        </p>
       </div>
-      <div class="navbar-collapse collapse">
-       <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-      <form class="navbar-form navbar-right">
-        <div class="form-group">
-         <input type="text" placeholder="Username" class="form-control">
-       </div>
-       <div class="form-group">
-         <input type="password" placeholder="Password" class="form-control">
-       </div>
-       <button type="submit" class="btn btn-success">Sign in</button>
-     </form>
-   </div>
-   <!--/.navbar-collapse -->
- </div>
-</div>
-<div class="container" style="padding-top: 60px;">
- <div class="row">
-  <div class="span12">
-   <h1>WebCal</h1>
-     <p class="lead">
-      Welcome to WebCal! WebCal is a web-based calendar system to help people keep
-      track of and schedule events.
-    </p>
+    </div>
   </div>
-</div>
-</div>
 </body>
 </html>
