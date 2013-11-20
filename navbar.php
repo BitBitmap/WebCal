@@ -15,7 +15,7 @@
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
           </ul>
-          <?php if(!isset($_SESSION['pid'])) { ?>
+          <?php if (!isset($_SESSION['pid'])) { ?>
           <form action="login.php" method="POST" class="navbar-form navbar-right">
               <div class="form-group">
                  <input name="pid" type="text" placeholder="PID" class="form-control">
@@ -30,6 +30,7 @@
             <li><a href="#">Logout</a></li>
         </ul>
         <?php } ?>
-    </div><!--/.navbar-collapse -->
+    </div>
+    <!--/.navbar-collapse -->
 </div>
 </div>

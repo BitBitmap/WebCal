@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $eid = $_POST['event'];
     $response = 0;
     $visibility = 0;
-    if($stmt = $mysqli -> prepare("INSERT INTO invited (pid, eid, response, visibility) VALUES (?, ?, ?, ?)")) {
+    if ($stmt = $mysqli -> prepare("INSERT INTO invited (pid, eid, response, visibility) VALUES (?, ?, ?, ?)")) {
       $stmt -> bind_param("siii", $pid, $eid, $response, $visibility);
       if ($stmt -> execute()) {
         $status = Status::Success;

@@ -1,7 +1,7 @@
 CREATE TABLE person (
     pid VARCHAR( 50 ) PRIMARY KEY,
     passwd CHAR( 32 ) NOT NULL,
-    fname VARCHAR( 50 ), 
+    fname VARCHAR( 50 ),
     lname VARCHAR( 50 ),
     d_privacy INT NOT NULL  -- change from part 1 spec, which said varchar
 );
@@ -22,7 +22,7 @@ CREATE TABLE eventdate (
      FOREIGN KEY (eid) REFERENCES event(eid)
 );
 
-CREATE TABLE invited (	
+CREATE TABLE invited (
    pid  VARCHAR(50) NOT NULL,
    eid  INT NOT NULL,
    response INT,
