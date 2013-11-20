@@ -5,11 +5,8 @@ class Status {
 };
 
 // Should be set to either null, or a constant under Status.
-$status = null;
 // Will be displayed if $status is set.
-$status_message = "";
-
-function display_status() {
+function display_status($status, $status_message="An error occurred!") {
   if ($status != null) {
 ?>
   <div class="status <?php echo $status; ?>">
