@@ -1,0 +1,23 @@
+.event {
+  width: 600px;
+}
+
+/* First column in an event table */
+.event tr td:first-child {
+  font-style: italic;
+  padding-right: 12px;
+  width: 200px;
+}
+
+/* Each subsequent event table */
+.event + .event {
+  margin-top: 5px;
+}
+
+.event:nth-child(odd) {
+  background-color: #ddd;
+}
+
+.event:nth-child(even) {
+  background-color: #eee;
+}
