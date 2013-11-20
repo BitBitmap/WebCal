@@ -24,7 +24,10 @@ require_once('mysql.php');
 <?php
 
 if (isset($_SESSION['pid'])) {
-  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, invited.pid, response, visibility FROM event JOIN invited USING (eid)")) {
+  // Only show information about invitations belonging to this
+  // particular user.
+  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?")) {
+    $stmt -> bind_param("s", $_SESSION['pid']);
     $stmt -> execute();
     $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
 
