@@ -7,15 +7,35 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">WebCal</a>
+            <a class="navbar-brand" href="./">WebCal</a>
         </div>
         <div class="navbar-collapse collapse">
            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li class="active"><a href="./">Home</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Schedule
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="calendar.php">Today's Schedule</a></li>
+                  <li><a href="calendar.php">My Schedule</a></li>
+                  <li><a href="calendar.php">View Friend's Schedule</a></li>
+                </ul>
+              </li>
+              <li><a href="calendar.php">Invitations</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Organize
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                  </a>
+                <ul class="dropdown-menu">
+                  <li><a href="organize.php">Organize Event</a></li>
+                  <li><a href="invite.php">Invite To Event</a></li>
+                </ul>
+              </li>
           </ul>
-          <?php if(!isset($_SESSION['pid'])) { ?>
+          <?php if (!isset($_SESSION['pid'])) { ?>
           <form action="login.php" method="POST" class="navbar-form navbar-right">
               <div class="form-group">
                  <input name="pid" type="text" placeholder="PID" class="form-control">
@@ -30,6 +50,7 @@
             <li><a href="#">Logout</a></li>
         </ul>
         <?php } ?>
-    </div><!--/.navbar-collapse -->
+    </div>
+    <!--/.navbar-collapse -->
 </div>
 </div>
