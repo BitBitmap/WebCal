@@ -1,16 +1,7 @@
 <?PHP error_reporting(-1); ?>
 <?php
 require_once('mysql.php');
-
-class Status {
-  const Success = "success";
-  const Error = "error";
-};
-
-// Should be set to either null, or a constant under Status.
-$status = null;
-// Will be displayed if $status is set.
-$status_message = "";
+require_once('status.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_SESSION['pid'])) {
@@ -63,13 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php
 if (isset($_SESSION['pid'])) {
   // Only allow user to create event if they are logged in.
-  if ($status != null) {
-?>
-          <div class="status <?php echo $status; ?>">
-            <p><?php echo $status_message; ?></p>
-          </div>
-<?php
-  }
+  display_status();
 ?>
           <form method="post">
             <table class="event">
