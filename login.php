@@ -22,7 +22,9 @@ if (isset($_POST['pid']) && isset($_POST['password'])) {
 ?>
 <!DOCTYPE html>
 <html>
-<?php require_once('header.php'); ?>
+<head>
+  <?php require_once('header.php'); ?>
+</head>
 <body>
   <link href="signin.css" rel="stylesheet">
   <?php require_once('navbar.php'); ?>
@@ -37,7 +39,5 @@ if (isset($_POST['pid']) && isset($_POST['password'])) {
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     </form>
   </div>
-  <!--Javascript-->
-  <?php //require_once('js.php'); ?>
 </body>
 </html>

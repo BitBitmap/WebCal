@@ -1,7 +1,9 @@
-<head>
-  <meta charset="utf-8">
-  <title>WebCal</title>
-  <!--Stylesheets-->
-  <link href="css/bootstrap.css" rel="stylesheet">
-</style>
-</head>
+<!-- Basic headers -->
+<meta charset="utf-8">
+<title>WebCal</title>
+<!-- Scripts -->
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<!--Stylesheets-->
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/base.css" rel="stylesheet">

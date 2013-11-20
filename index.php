@@ -1,20 +1,12 @@
 <?PHP error_reporting(-1); ?>
 <?php
-require_once('mysql.php');
-
 session_start();
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>WebCal</title>
-  <!--Stylesheets-->
-  <link href="css/bootstrap.css" rel="stylesheet">
-  <!--Javascript-->
-  <script src="http://code.jquery.com/jquery.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+<?php require_once('header.php') ?>
 </head>
 <body>
 <?php require_once('navbar.php'); ?>

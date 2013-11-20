@@ -42,15 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>WebCal</title>
-  <!--Stylesheets-->
-  <link href="css/bootstrap.css" rel="stylesheet">
-  <link href="css/base.css" rel="stylesheet">
+  <?php require_once('header.php') ?>
   <link href="css/organize.css" rel="stylesheet">
-  <!--Javascript-->
-  <script src="http://code.jquery.com/jquery.js"></script>
-  <script src="js/bootstrap.min.js"></script>
 </head>
 <body>
 <?php require_once('navbar.php'); ?>
