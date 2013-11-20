@@ -21,28 +21,50 @@ require_once('mysql.php');
     <div class="row">
       <div class="span12">
         <h1>My Calendar</h1>
-        <p class="lead">
 <?php
 
-if(isset($_SESSION['pid'])) {
-  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, pid FROM event")) {
+if (isset($_SESSION['pid'])) {
+  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, invited.pid, response, visibility FROM event JOIN invited USING (eid)")) {
     $stmt -> execute();
-    $stmt -> bind_result($start_time, $duration, $description, $pid);
+    $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
 
     while ($success = ($stmt -> fetch())) {
-      echo "<table class='event'>";
-      echo "<tr><td>Event start time</td><td>$start_time</td></tr>";
-      echo "<tr><td>Duration</td><td>$duration</td></tr>";
-      echo "<tr><td>Organizer</td><td>$pid</td></tr>";
-      echo "<tr><td>Description</td><td>$description</td></tr>";
-      echo "</table>";
-    }
+      // Begin create a table for each event.
+?>
+          <table class='event'>
+            <tr>
+              <td>Event start time</td>
+              <td><?php echo $start_time; ?></td>
+            </tr>
+            <tr>
+              <td>Duration</td>
+              <td><?php echo $duration; ?></td>
+            </tr>
+            <tr>
+              <td>Organizer</td>
+              <td><?php echo $organizer_pid; ?></td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td><?php echo $description; ?></td>
+            </tr>
+            <tr>
+              <td>Response</td>
+              <td><?php echo $response; ?></td>
+            </tr>
+            <tr>
+              <td>Visibility</td>
+              <td><?php echo $visibility; ?></td>
+            </tr>
+          </table>
+<?php
+    } // End create a table for each event.
   }
 } else {
+  // User is not logged in.
   echo "You need to log in to view this page!";
 }
 ?>
-        </p>
       </div>
     </div>
   </div>
