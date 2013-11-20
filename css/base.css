@@ -61,3 +61,10 @@
   border: 1px #00cc00 solid;
   background-color: #ccffcc;
 }
+
+/* Dropdown Menu Icons
+======================================= */
+a.dropdown-toggle .glyphicon {
+  margin-left: 5px;
+  vertical-align: middle;
+}

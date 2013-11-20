@@ -12,9 +12,28 @@
         <div class="navbar-collapse collapse">
            <ul class="nav navbar-nav">
               <li class="active"><a href="./">Home</a></li>
-              <li><a href="calendar.php">Calendar</a></li>
-              <li><a href="organize.php">Organize Event</a></li>
-              <li><a href="invite.php">Invite To Event</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Schedule
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="calendar.php">Today's Schedule</a></li>
+                  <li><a href="calendar.php">My Schedule</a></li>
+                  <li><a href="calendar.php">View Friend's Schedule</a></li>
+                </ul>
+              </li>
+              <li><a href="calendar.php">Invitations</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Organize
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                  </a>
+                <ul class="dropdown-menu">
+                  <li><a href="organize.php">Organize Event</a></li>
+                  <li><a href="invite.php">Invite To Event</a></li>
+                </ul>
+              </li>
           </ul>
           <?php if (!isset($_SESSION['pid'])) { ?>
           <form action="login.php" method="POST" class="navbar-form navbar-right">
