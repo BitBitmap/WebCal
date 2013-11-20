@@ -11,9 +11,10 @@
         </div>
         <div class="navbar-collapse collapse">
            <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li class="active"><a href="./">Home</a></li>
+              <li><a href="calendar.php">Calendar</a></li>
+              <li><a href="organize.php">Organize Event</a></li>
+              <li><a href="invite.php">Invite To Event</a></li>
           </ul>
           <?php if (!isset($_SESSION['pid'])) { ?>
           <form action="login.php" method="POST" class="navbar-form navbar-right">
