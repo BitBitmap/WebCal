@@ -8,9 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // User is logged in, check for validity.
     $pid = $_POST['person'];
     $eid = $_POST['event'];
-
-    if($stmt = $mysqli -> prepare("INSERT INTO invited (pid, eid) VALUES (?, ?)")) {
-      $stmt -> bind_param("si", $pid, $eid);
+    $response = 0;
+    $visibility = 0;
+    if($stmt = $mysqli -> prepare("INSERT INTO invited (pid, eid, response, visibility) VALUES (?, ?, ?, ?)")) {
+      $stmt -> bind_param("siii", $pid, $eid, $response, $visibility);
       if ($stmt -> execute()) {
         $status = Status::Success;
         $status_message = "Invitation was successfully sent!";
