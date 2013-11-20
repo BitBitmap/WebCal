@@ -1,31 +1,8 @@
-<?PHP error_reporting(-1); ?>
-<?php
-require_once('mysql.php');
-
-if (isset($_POST['pid']) && isset($_POST['password'])){
-    if($stmt = $mysqli -> prepare("SELECT pid, fname, lname FROM person WHERE pid=? AND passwd=?")){
-        $stmt -> bind_param("ss", $_POST['pid'], hash("md5", $_POST['password']));
-        $stmt -> execute();
-        $stmt -> bind_result($pid, $fname, $lname);
-        $stmt -> fetch();
-
-        $_SESSION['pid'] = $pid;
-        $_SESSION['fname'] = $fname;
-        $_SESSION['lname'] = $lname;
-    }
-
-}
-?>   
+<?PHP error_reporting(-1); ?>  
 
 <!DOCTYPE html>
 <html>
-<head>		
-  <meta charset="utf-8">
-  <title>WebCal</title>
-  <!--Stylesheets-->
-  <link href="css/bootstrap.css" rel="stylesheet">
-</style>
-</head>
+<?php require_once('header.php'); ?>
 <body>
     <?php require_once('navbar.php'); ?>
     <div class="container" style="padding-top: 60px;">
@@ -44,7 +21,6 @@ if (isset($_POST['pid']) && isset($_POST['password'])){
 </div>
 </div>
 <!--Javascript-->
-<script src="http://code.jquery.com/jquery.js"></script>
-<script src="js/bootstrap.min.js"></script>
+<?php require_once('js.php'); ?>
 </body>
 </html>
