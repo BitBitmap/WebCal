@@ -1,6 +1,7 @@
 <?PHP error_reporting(-1); ?>
 <?php
 require_once('mysql.php');
+session_start();
 ?>
 
 <!DOCTYPE html>

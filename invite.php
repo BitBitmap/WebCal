@@ -3,6 +3,8 @@
 require_once('mysql.php');
 require_once('status.php');
 
+session_start();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_SESSION['pid'])) {
     // User is logged in, check for validity.
