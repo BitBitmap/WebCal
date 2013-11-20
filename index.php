@@ -1,5 +1,5 @@
 <?PHP error_reporting(-1); ?>  
-
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html>
 <?php require_once('header.php'); ?>
@@ -12,10 +12,6 @@
          <p class="lead">
           Welcome to WebCal! WebCal is a web-based calendar system to help people keep 
           track of and schedule events.
-          <?php
-          if(isset($_SESSION['pid']))
-            echo $_SESSION['pid'];
-        ?>
     </p>
 </div>
 </div>

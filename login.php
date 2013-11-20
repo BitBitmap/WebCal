@@ -1,12 +1,12 @@
 <?php
 require_once('mysql.php');
+session_start();
 
 if (isset($_POST['pid']) && isset($_POST['password'])){
 	if($stmt = $mysqli -> prepare("SELECT pid, fname, lname FROM person WHERE pid=? AND passwd=?")){
 		$stmt -> bind_param("ss", $_POST['pid'], hash("md5", $_POST['password']));
 		$stmt -> execute();
 		$stmt -> bind_result($pid, $fname, $lname);
-		// $stmt -> fetch();
 
 		if($stmt -> fetch()){
 			$_SESSION['pid'] = $pid;
@@ -15,16 +15,10 @@ if (isset($_POST['pid']) && isset($_POST['password'])){
 			header('Location: index.php');
 		}
 
-		// if(isset($_SESSION['pid']))
-		// 	echo "We are logged in";
-			//header('Location: index.php');
 	}
 
 }
 
-if(isset($_SESSION['pid']))
-	echo "We are logged in";
-	//header('Location: index.php');
 ?>
 <!DOCTYPE html>
 <html>

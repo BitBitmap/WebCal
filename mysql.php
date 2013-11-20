@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 $mysqli = new mysqli("localhost", "baka", "bakabaka", "baka");
 
