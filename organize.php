@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>WebCal</title>
   <!--Stylesheets-->
   <link href="css/bootstrap.css" rel="stylesheet">
+  <link href="css/base.css" rel="stylesheet">
   <link href="css/organize.css" rel="stylesheet">
   <!--Javascript-->
   <script src="http://code.jquery.com/jquery.js"></script>

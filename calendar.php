@@ -10,7 +10,7 @@ require_once('mysql.php');
   <title>WebCal</title>
   <!--Stylesheets-->
   <link href="css/bootstrap.css" rel="stylesheet">
-  <link href="css/calendar.css" rel="stylesheet">
+  <link href="css/base.css" rel="stylesheet">
   <!--Javascript-->
   <script src="http://code.jquery.com/jquery.js"></script>
   <script src="js/bootstrap.min.js"></script>
@@ -34,7 +34,7 @@ if (isset($_SESSION['pid'])) {
     while ($success = ($stmt -> fetch())) {
       // Begin create a table for each event.
 ?>
-          <table class='event'>
+          <table class='event color-code'>
             <tr>
               <td>Event start time</td>
               <td><?php echo $start_time; ?></td>
