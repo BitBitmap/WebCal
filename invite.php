@@ -5,6 +5,11 @@ require_once('status.php');
 
 session_start();
 
+// Used to show if a request was successful, or if it resulted in an
+// error.
+$status = null;
+$status_message = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_SESSION['pid'])) {
     // User is logged in, check for validity.
