@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($stmt -> execute()) {
         $status = Status::Success;
         $status_message = "Invitation was successfully sent!";
-        echo 'sd';
       } else {
         $status = Status::Error;
         $status_message = "Unfortunately, we can't process your request!\n";
