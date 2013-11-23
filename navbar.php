@@ -47,7 +47,7 @@
          </form>
          <?php } else { ?>
          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Logout</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
         <?php } ?>
     </div>
