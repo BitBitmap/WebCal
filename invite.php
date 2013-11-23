@@ -5,6 +5,11 @@ require_once('status.php');
 
 session_start();
 
+// Used to show if a request was successful, or if it resulted in an
+// error.
+$status = null;
+$status_message = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_SESSION['pid'])) {
     // User is logged in, check for validity.
@@ -17,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($stmt -> execute()) {
         $status = Status::Success;
         $status_message = "Invitation was successfully sent!";
-        echo 'sd';
       } else {
         $status = Status::Error;
         $status_message = "Unfortunately, we can't process your request!\n";
