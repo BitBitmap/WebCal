@@ -23,7 +23,16 @@
                   <li><a href="calendar.php">View Friend's Schedule</a></li>
                 </ul>
               </li>
-              <li><a href="calendar.php">Invitations</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  Invitations
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="calendar.php">Pending Invitations</a></li>
+                  <li><a href="calendar.php">All Invitations</a></li>
+                </ul>
+              </li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   Organize
