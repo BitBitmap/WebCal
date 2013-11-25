@@ -57,8 +57,8 @@ if (isset($_SESSION['pid'])) {
     "SELECT pid, fname, lname, level
     FROM person
     LEFT OUTER JOIN friend_of ON friend_of.viewer = person.pid
-    WHERE sharer IS NULL
-    OR sharer=?
+    WHERE (sharer IS NULL
+    OR sharer=?)
     AND viewer!=?")) {
 
     $stmt -> bind_param("ss", $_SESSION['pid'], $_SESSION['pid']);
