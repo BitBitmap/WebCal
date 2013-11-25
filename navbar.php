@@ -34,6 +34,7 @@
                   <li><a href="invite.php">Invite To Event</a></li>
                 </ul>
               </li>
+              <li><a href="friend.php">Manage Friends</a></li>
           </ul>
           <?php if (!isset($_SESSION['pid'])) { ?>
           <form action="login.php" method="POST" class="navbar-form navbar-right">
