@@ -10,6 +10,21 @@ session_start();
 $status = null;
 $status_message = "";
 
+// Inserts an event into the database.
+function organize_event($mysqli, $pid, $start, $duration, $description) {
+  // Start by inserting event...
+  if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
+    $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
+    if (!$stmt -> execute()) {
+      throw new Exception("Execution failed with error: ".$mysqli->error);
+    }
+  } else {
+    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+  }
+
+  // Now get the event ID so we know what to attach the dates to...
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_SESSION['pid'])) {
     // User is logged in, check for validity.
@@ -17,18 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start = $_POST['start-time'];
     $duration = $_POST['duration'];
     $description = $_POST['description'];
-
-    if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
-      $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
-      if ($stmt -> execute()) {
-        $status = Status::Success;
-        $status_message = "Event successfully created!";
-      } else {
-        $status = Status::Error;
-        $status_message = "Unfortunately, we can't process your request!\n";
-        $status_message = $status_message."SQL arguments: '$pid', '$start', '$duration', '$description'\n";
-        $status_message = $status_message.$mysqli->error;
-      }
+    try {
+      organize_event($mysqli, $pid, $start, $duration, $description);
+      $status = Status::Success;
+      $status_message = "Event successfully created!";
+    } catch (Exception $e) {
+      $status = Status::Error;
+      $status_message = "Unfortunately, we can't process your request!\n";
+      $status_message = $status_message.$e;
     }
   } else {
     // User is not logged in...
