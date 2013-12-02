@@ -1,3 +1,9 @@
+<?php
+if( ! ini_get('date.timezone') )
+{
+   date_default_timezone_set('GMT');
+}
+?>
 <!-- Basic headers -->
 <meta charset="utf-8">
 <title>WebCal</title>
