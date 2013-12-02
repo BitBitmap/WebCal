@@ -25,7 +25,9 @@ if (isset($_SESSION['pid'])) {
     $stmt -> execute();
     $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
 
+    $rows = 0;
     while ($success = ($stmt -> fetch())) {
+      ++$rows;
       // Begin create a table for each event.
 ?>
           <table class='event color-code'>
@@ -56,6 +58,12 @@ if (isset($_SESSION['pid'])) {
           </table>
 <?php
     } // End create a table for each event.
+
+    if ($rows == 0) {
+      ?>
+        <p>You do not have any events to go to.</p>
+      <?php
+    }
   }
 } else {
   // User is not logged in.
