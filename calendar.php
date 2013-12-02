@@ -2,6 +2,39 @@
 <?php
 require_once('mysql.php');
 session_start();
+
+function display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility) {
+?>
+  <table class='event color-code'>
+    <tr>
+      <td>Event start time</td>
+      <td><?php echo $start_time; ?></td>
+    </tr>
+    <tr>
+      <td>Duration</td>
+      <td><?php echo $duration; ?></td>
+    </tr>
+    <tr>
+      <td>Organizer</td>
+      <td><?php echo $organizer_pid; ?></td>
+    </tr>
+    <tr>
+      <td>Description</td>
+      <td><?php echo $description; ?></td>
+    </tr>
+    <tr>
+      <td>Response</td>
+      <td><?php echo $response; ?></td>
+    </tr>
+    <tr>
+      <td>Visibility</td>
+      <td><?php echo $visibility; ?></td>
+    </tr>
+  </table>
+<?php
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -16,7 +49,6 @@ session_start();
       <div class="span12">
         <h1>My Calendar</h1>
 <?php
-
 if (isset($_SESSION['pid'])) {
   // Only show information about invitations belonging to this
   // particular user.
@@ -28,41 +60,12 @@ if (isset($_SESSION['pid'])) {
     $rows = 0;
     while ($success = ($stmt -> fetch())) {
       ++$rows;
-      // Begin create a table for each event.
-?>
-          <table class='event color-code'>
-            <tr>
-              <td>Event start time</td>
-              <td><?php echo $start_time; ?></td>
-            </tr>
-            <tr>
-              <td>Duration</td>
-              <td><?php echo $duration; ?></td>
-            </tr>
-            <tr>
-              <td>Organizer</td>
-              <td><?php echo $organizer_pid; ?></td>
-            </tr>
-            <tr>
-              <td>Description</td>
-              <td><?php echo $description; ?></td>
-            </tr>
-            <tr>
-              <td>Response</td>
-              <td><?php echo $response; ?></td>
-            </tr>
-            <tr>
-              <td>Visibility</td>
-              <td><?php echo $visibility; ?></td>
-            </tr>
-          </table>
-<?php
-    } // End create a table for each event.
-
+      display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility);
+    }
     if ($rows == 0) {
-      ?>
-        <p>You do not have any events to go to.</p>
-      <?php
+    ?>
+      <p>You do not have any events to go to.</p>
+    <?php
     }
   }
 } else {
