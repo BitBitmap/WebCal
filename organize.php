@@ -11,7 +11,7 @@ $status = null;
 $status_message = "";
 
 // Inserts an event into the database.
-function organize_event($mysqli, $pid, $start, $duration, $description) {
+function organize_event($mysqli, $pid, $start, $duration, $description, $date) {
   // Start by inserting event...
   if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
     $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
@@ -22,7 +22,18 @@ function organize_event($mysqli, $pid, $start, $duration, $description) {
     throw new Exception("Statement preparation failed with error: ".$mysqli->error);
   }
 
-  // Now get the event ID so we know what to attach the dates to...
+  // Now insert the date...
+  if($stmt = $mysqli -> prepare("INSERT INTO eventdate (eid, edate) VALUES (LAST_INSERT_ID(), ?)")) {
+    if (!$stmt -> bind_param("s", $date)) {
+      throw new Exception("Statement binding failed: ".$mysqli->error);
+    }
+    if (!$stmt -> execute()) {
+      throw new Exception("Execution failed with error: ".$mysqli->error);
+    }
+  } else {
+    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+  }
+
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -32,8 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start = $_POST['start-time'];
     $duration = $_POST['duration'];
     $description = $_POST['description'];
+    $date = $_POST['dates'];
     try {
-      organize_event($mysqli, $pid, $start, $duration, $description);
+      organize_event($mysqli, $pid, $start, $duration, $description, $date);
       $status = Status::Success;
       $status_message = "Event successfully created!";
     } catch (Exception $e) {
@@ -83,6 +95,12 @@ if (isset($_SESSION['pid'])) {
                 <td>Description</td>
                 <td>
                   <textarea name="description" id="event-description"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td>Dates</td>
+                <td>
+                  <textarea name="dates" id="event-dates"></textarea>
                 </td>
               </tr>
             </table>
