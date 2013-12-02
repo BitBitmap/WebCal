@@ -3,6 +3,25 @@
 require_once('mysql.php');
 session_start();
 
+function display_event_tables($mysqli, $pid) {
+  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?")) {
+    $stmt -> bind_param("s", $pid);
+    $stmt -> execute();
+    $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
+
+    $rows = 0;
+    while ($success = ($stmt -> fetch())) {
+      ++$rows;
+      display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility);
+    }
+    if ($rows == 0) {
+    ?>
+      <p>You do not have any events to go to.</p>
+    <?php
+    }
+  }
+}
+
 function display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility) {
 ?>
   <table class='event color-code'>
@@ -52,22 +71,7 @@ function display_row($start_time, $duration, $description, $organizer_pid, $resp
 if (isset($_SESSION['pid'])) {
   // Only show information about invitations belonging to this
   // particular user.
-  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?")) {
-    $stmt -> bind_param("s", $_SESSION['pid']);
-    $stmt -> execute();
-    $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
-
-    $rows = 0;
-    while ($success = ($stmt -> fetch())) {
-      ++$rows;
-      display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility);
-    }
-    if ($rows == 0) {
-    ?>
-      <p>You do not have any events to go to.</p>
-    <?php
-    }
-  }
+  display_event_tables($mysqli, $_SESSION['pid']);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
