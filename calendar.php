@@ -3,43 +3,8 @@
 require_once('mysql.php');
 session_start();
 
-function fetch_dates($mysqli, $eid) {
-  if (!($date_stmt = $mysqli->prepare("SELECT edate FROM eventdate WHERE eid=?"))) {
-    throw new Exception("Preparing statement failed: ".$mysqli->error);
-  }
-  if (!$date_stmt->bind_param('s', $eid)) {
-    throw new Exception("Binding argument failed: ".$mysqli->error);
-  }
-
-  if (!$date_stmt->bind_result($date)) {
-    throw new Exception("Binding result failed: ".$mysqli->error);
-  }
-
-  if (!$date_stmt->execute()) {
-    throw new Exception("Execution failed: ".$mysqli->error);
-  }
-
-  if (!$date_stmt->store_result()) {
-    throw new Exception("Store result failed: ".$mysqli->error);
-  }
-
-  $dates = array();
-  $rowNumber = 0;
-  for ($i = 0; $i < $date_stmt->num_rows; ++$i) {
-    if (!$date_stmt->fetch()) {
-      throw new Exception("Fetching failed: ".$mysql->error);
-    }
-    $dates[$rowNumber] = $date;
-  }
-
-  return $dates;
-}
-
-function display_event_tables($mysqli, $pid) {
-  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?"))) {
-    throw new Exception("Preparing statement failed: ".$mysqli->error);
-  }
-  if (!($date_stmt = $mysqli->prepare("SELECT edate FROM eventdate WHERE eid=?"))) {
+function display_event_tables($mysqli, $pid, $date) {
+  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
   if (!$stmt->bind_param('i', $pid)) {
@@ -51,29 +16,14 @@ function display_event_tables($mysqli, $pid) {
   if (!$stmt->store_result()) {
     throw new Exception("Store result failed: ".$mysqli->error);
   }
-  $stmt -> bind_result($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility);
+  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility);
 
-  $rows = array();
   for ($i = 0; $i < $stmt->num_rows; ++$i) {
     if (!$stmt -> fetch()) {
       throw new Exception("Error fetching: ".$mysqli->error);
     }
-    $rows[$i] = array(
-        'eid' => $eid,
-        'start_time' => $start_time,
-        'duration' => $duration,
-        'description' => $description,
-        'organizer_pid' => $organizer_pid,
-        'response' => $response,
-        'visibility' => $visibility
-      );
-  }
-
-  for ($i = 0; $i < $stmt->num_rows; ++$i) {
     try {
-      $row = $rows[$i];
-      $dates = fetch_dates($mysqli, $row['eid']);
-      display_row($row['eid'], $row['start_time'], $row['duration'], $row['description'], $row['organizer_pid'], $row['response'], $row['visibility'], $dates);
+      display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date);
     } catch (Exception $e) {
       // Display the error message so we can debug it...
       ?>
@@ -92,7 +42,7 @@ function display_event_tables($mysqli, $pid) {
   }
 }
 
-function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $dates) {
+function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date) {
 ?>
   <table class='event color-code'>
     <tr>
@@ -112,8 +62,8 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
       <td><?php echo htmlentities($description); ?></td>
     </tr>
     <tr>
-      <td>Dates</td>
-      <td><?php echo JSON_encode($dates); ?></td>
+      <td>Date</td>
+      <td><?php echo $date; ?></td>
     </tr>
     <tr>
       <td>Response</td>
@@ -145,7 +95,7 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 if (isset($_SESSION['pid'])) {
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_SESSION['pid']);
+  display_event_tables($mysqli, $_SESSION['pid'], $_SESSION['date']);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
