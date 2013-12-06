@@ -109,7 +109,7 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
     </tr>
     <tr>
       <td>Description</td>
-      <td><?php echo $description; ?></td>
+      <td><?php echo htmlentities($description); ?></td>
     </tr>
     <tr>
       <td>Dates</td>
@@ -136,7 +136,7 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
   <?php require_once('header.php'); ?>
 </head>
 <body>
-<?php require_once('navbar.php'); ?>
+  <?php require_once('navbar.php'); ?>
   <div class="container" style="padding-top: 60px;">
     <div class="row">
       <div class="span12">
@@ -151,8 +151,8 @@ if (isset($_SESSION['pid'])) {
   echo "You need to log in to view this page!";
 }
 ?>
-      </div>
-    </div>
-  </div>
+</div>
+</div>
+</div>
 </body>
 </html>
