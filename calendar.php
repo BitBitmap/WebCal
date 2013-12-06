@@ -3,30 +3,88 @@
 require_once('mysql.php');
 session_start();
 
-function display_event_tables($mysqli, $pid) {
-  if ($stmt = $mysqli -> prepare("SELECT start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?")) {
-    $stmt -> bind_param("s", $pid);
-    $stmt -> execute();
-    $stmt -> bind_result($start_time, $duration, $description, $organizer_pid, $response, $visibility);
+function fetch_dates($mysqli, $eid) {
+  if (!($date_stmt = $mysqli->prepare("SELECT edate FROM eventdate WHERE eid=?"))) {
+    throw new Exception("Preparing statement failed: ".$mysqli->error);
+  }
+  if (!$date_stmt->bind_param('s', $eid)) {
+    throw new Exception("Binding argument failed: ".$mysqli->error);
+  }
 
-    $rows = 0;
+  if (!$date_stmt->bind_result($date)) {
+    throw new Exception("Binding result failed: ".$mysqli->error);
+  }
+
+  if (!$date_stmt->execute()) {
+    throw new Exception("Execution failed: ".$mysqli->error);
+  }
+
+  $dates = array();
+  $rowNumber = 0;
+  while ($success = ($date_stmt->fetch())) {
+    $dates[$rowNumber] = $date;
+    ++$rowNumber;
+  }
+
+  if ($success === false) {
+    throw new Exception("Fetching failed: ".$mysql->error);
+  }
+
+
+  return $dates;
+}
+
+function display_event_tables($mysqli, $pid) {
+  if ($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?")) {
+    $stmt -> bind_param("i", $pid);
+    $stmt -> execute();
+    $stmt -> bind_result($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility);
+
+    $rows = array();
+    $i = 0;
     while ($success = ($stmt -> fetch())) {
-      ++$rows;
-      display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility);
+      $rows[$i] = array(
+          'eid' => $eid,
+          'start_time' => $start_time,
+          'duration' => $duration,
+          'description' => $description,
+          'organizer_pid' => $organizer_pid,
+          'response' => $response,
+          'visibility' => $visibility
+        );
+      ++$i;
     }
-    if ($rows == 0) {
+
+    if (count($rows) == 0) {
     ?>
       <p>You do not have any events to go to.</p>
     <?php
+    } else {
+      for ($i = 0; $i < count($rows); ++$i) {
+        try {
+          $row = $rows[$i];
+          $dates = fetch_dates($mysqli, $row['eid']);
+          display_row($row['eid'], $row['start_time'], $row['duration'], $row['description'], $row['organizer_pid'], $row['response'], $row['visibility'], $dates);
+        } catch (Exception $e) {
+          // Display the error message so we can debug it...
+          ?>
+          <div class='error'>
+            <p>Oops! This is embarassing. Something bad happened occurred...</p>
+            <p><?php echo $e; ?></p>
+          </div>
+          <?php
+        }
+      }
+
     }
   }
 }
 
-function display_row($start_time, $duration, $description, $organizer_pid, $response, $visibility) {
+function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $dates) {
 ?>
   <table class='event color-code'>
     <tr>
-      <td>Event start time</td>
+      <td>Event <?php echo $eid; ?> start time</td>
       <td><?php echo $start_time; ?></td>
     </tr>
     <tr>
@@ -40,6 +98,10 @@ function display_row($start_time, $duration, $description, $organizer_pid, $resp
     <tr>
       <td>Description</td>
       <td><?php echo $description; ?></td>
+    </tr>
+    <tr>
+      <td>Dates</td>
+      <td><?php echo JSON_encode($dates); ?></td>
     </tr>
     <tr>
       <td>Response</td>
