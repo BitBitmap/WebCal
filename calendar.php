@@ -46,6 +46,10 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 ?>
   <table class='event color-code'>
     <tr>
+      <td>Date</td>
+      <td><?php echo $date; ?></td>
+    </tr>
+    <tr>
       <td>Event <?php echo $eid; ?> start time</td>
       <td><?php echo $start_time; ?></td>
     </tr>
@@ -54,16 +58,12 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
       <td><?php echo $duration; ?></td>
     </tr>
     <tr>
-      <td>Organizer</td>
-      <td><?php echo $organizer_pid; ?></td>
-    </tr>
-    <tr>
       <td>Description</td>
       <td><?php echo htmlentities($description); ?></td>
     </tr>
     <tr>
-      <td>Date</td>
-      <td><?php echo $date; ?></td>
+      <td>Organizer</td>
+      <td><?php echo $organizer_pid; ?></td>
     </tr>
     <tr>
       <td>Response</td>
