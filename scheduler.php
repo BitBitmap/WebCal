@@ -28,7 +28,7 @@ function display_date_filter($begin, $end) {
 }
 
 function display_event_tables($mysqli, $pid, $begin, $end) {
-  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? AND ? <= edate AND edate <= ? ORDER BY edate, start_time"))) {
+  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility, valid FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? AND ? <= edate AND edate <= ? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
   if (!$stmt->bind_param('sss', $pid, $begin, $end)) {
@@ -40,14 +40,14 @@ function display_event_tables($mysqli, $pid, $begin, $end) {
   if (!$stmt->store_result()) {
     throw new Exception("Store result failed: ".$mysqli->error);
   }
-  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility);
+  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility, $valid);
 
   for ($i = 0; $i < $stmt->num_rows; ++$i) {
     if (!$stmt -> fetch()) {
       throw new Exception("Error fetching: ".$mysqli->error);
     }
     try {
-      display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date);
+      display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $valid);
     } catch (Exception $e) {
       // Display the error message so we can debug it...
       ?>
@@ -66,7 +66,7 @@ function display_event_tables($mysqli, $pid, $begin, $end) {
   }
 }
 
-function display_rowandcount($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $count) {
+function display_rowandcount($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $count, $valid) {
 ?>
   <table class='event color-code'>
     <tr>
@@ -101,12 +101,16 @@ function display_rowandcount($eid, $start_time, $duration, $description, $organi
       <td>Visibility</td>
       <td><?php echo $visibility; ?></td>
     </tr>
+    <tr>
+      <td>Valid</td>
+      <td><?php echo $valid; ?></td>
+    </tr>
   </table>
 <?php
 }
 
 function display_own_events($mysqli, $pid, $begin, $end) {
-  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility, COUNT( * ) FROM event NATURAL JOIN eventdate JOIN invited USING ( eid ) WHERE event.pid = ? AND ? <= edate AND edate <= ? AND response =2 GROUP BY eid, edate ORDER BY start_time"))) {
+  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility, valid, COUNT( * ) FROM event NATURAL JOIN eventdate JOIN invited USING ( eid ) WHERE event.pid = ? AND ? <= edate AND edate <= ? AND response =2 GROUP BY eid, edate ORDER BY start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
   if (!$stmt->bind_param('sss', $pid, $begin, $end)) {
@@ -118,14 +122,14 @@ function display_own_events($mysqli, $pid, $begin, $end) {
   if (!$stmt->store_result()) {
     throw new Exception("Store result failed: ".$mysqli->error);
   }
-  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility, $count);
+  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility, $valid, $count);
 
   for ($i = 0; $i < $stmt->num_rows; ++$i) {
     if (!$stmt -> fetch()) {
       throw new Exception("Error fetching: ".$mysqli->error);
     }
     try {
-      display_rowandcount($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $count);
+      display_rowandcount($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $count, $valid);
     } catch (Exception $e) {
       // Display the error message so we can debug it...
       ?>
@@ -144,7 +148,7 @@ function display_own_events($mysqli, $pid, $begin, $end) {
   }
 }
 
-function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date) {
+function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $valid) {
 ?>
   <table class='event color-code'>
     <tr>
@@ -174,6 +178,10 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
     <tr>
       <td>Visibility</td>
       <td><?php echo $visibility; ?></td>
+    </tr>
+    <tr>
+      <td>Valid</td>
+      <td><?php echo $valid; ?></td>
     </tr>
   </table>
 <?php
