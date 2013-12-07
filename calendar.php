@@ -81,7 +81,7 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <?php require_once('header.php'); ?>
 </head>
@@ -91,8 +91,29 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
     <div class="row">
       <div class="span12">
         <h1>My Calendar</h1>
+        <hr />
+        <p>Only see events between:</p>
+      </div>
 <?php
 if (isset($_SESSION['pid'])) {
+?>
+      <div class="filter container">
+        <div class="row">
+          <form method="GET">
+            <div class="col-md-2">
+              <input type="text" name="begin" placeholder="The beginning of time" />
+            </div>
+            <div class="col-md-2">
+              <input type="text" name="end" placeholder="infinity and beyond" />
+            </div>
+            <div class="col-md-1">
+              <input type="submit" />
+            </div>
+          </form>
+        </div>
+      </div>
+      <hr />
+<?php
   // Only show information about invitations belonging to this
   // particular user.
   display_event_tables($mysqli, $_SESSION['pid'], $_SESSION['date']);
@@ -101,8 +122,8 @@ if (isset($_SESSION['pid'])) {
   echo "You need to log in to view this page!";
 }
 ?>
-</div>
-</div>
-</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
