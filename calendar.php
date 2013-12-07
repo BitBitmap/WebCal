@@ -33,12 +33,14 @@ session_start();
       </div>
 <?php
 if (isset($_SESSION['pid'])) {
-  ?> <hr /> <?
+  ?>
+  <hr />
+    <form method="GET" action=""><?
   if ($begin != $end || $begin != $today || $end != $today) {
     // We want to only display the value if the user specified it
     // themselves.  Otherwise, we want the default value to show.
     display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
-    ?> <hr />
+    ?> </form><hr />
   <? }
   // Only show information about invitations belonging to this
   // particular user.
@@ -54,3 +56,4 @@ if (isset($_SESSION['pid'])) {
   <?php enable_datepicker(); ?>
 </body>
 </html>
+

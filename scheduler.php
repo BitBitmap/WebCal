@@ -13,17 +13,15 @@ function display_date_filter($begin, $end) {
       </div>
     </div>
     <div class="row">
-      <form method="GET" action="">
-        <div class="col-md-2">
-          <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
-        </div>
-        <div class="col-md-2">
-          <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
-        </div>
-        <div class="col-md-1">
-          <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-      </form>
+      <div class="col-md-2">
+        <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
+      </div>
+      <div class="col-md-2">
+        <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
+      </div>
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
     </div>
   </div>
   <?php
