@@ -43,6 +43,7 @@
                   <li><a href="eventscreated.php">Events Created</a></li>
                   <li><a href="organize.php">Organize Event</a></li>
                   <li><a href="invite.php">Invite To Event</a></li>
+                  <li><a href="cancel.php">Cancel an Event</a></li>
                 </ul>
               </li>
               <li><a href="friend.php">Manage Friends</a></li>
