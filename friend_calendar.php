@@ -18,30 +18,51 @@ function display_date_filter($begin, $end) {
       </div>
     </div>
     <div class="row">
-      <form method="GET" action="">
-        <div class="col-md-2">
-          <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
-        </div>
-        <div class="col-md-2">
-          <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
-        </div>
-        <div class="col-md-1">
-          <button type="button" class="btn btn-primary">Filter</button>
-        </div>
-      </form>
+      <div class="col-md-2">
+        <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
+      </div>
+      <div class="col-md-2">
+        <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
+      </div>
+      <div class="col-md-1">
+        <button type="button" class="btn btn-primary">Filter</button>
+      </div>
     </div>
   </div>
   <?php
 }
 
+function retrieve_friend_names($mysqli) {
+  $friends = array();
+  if (!($stmt = $mysqli -> prepare("SELECT pid, fname, lname FROM person"))) {
+    throw new Exception("Preparing statement failed: ".$mysqli->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception("Execution failed: ".$mysqli->error);
+  }
+  if (!$stmt->store_result()) {
+    throw new Exception("Store result failed: ".$mysqli->error);
+  }
+  if (!$stmt -> bind_result($pid, $first_name, $last_name)) {
+    throw new Exception("Bind result failed: ".$mysqli->error);
+  }
+  for ($i = 0; $i < $stmt->num_rows; ++$i) {
+    if (!$stmt->fetch()) {
+      throw new Exception("Error fetching: ".$mysqli->error);
+    }
+    $friends[$i] = array("pid"=>$pid, "first_name"=>$first_name, "last_name"=>$last_name);
+  }
+  return $friends;
+}
+
 function display_friend_filter($friends) {
-  ?>
-  <div class="btn-group">
-    <button type="button" class="btn btn-default">Alan</button>
-    <button type="button" class="btn btn-default">John</button>
-    <button type="button" class="btn btn-default">Leonard</button>
-  </div>
-  <?php
+  ?><div class="btn-group"><?php
+  foreach ($friends as $friend) {
+    ?>
+      <button type="submit" name="pid" value="<?php echo $friend['pid']; ?>" class="btn btn-default"><?php echo $friend['first_name']." ".$friend['last_name']; ?></button>
+    <?php
+  }
+  ?></div><?php
 }
 
 function display_event_tables($mysqli, $pid, $begin, $end) {
@@ -158,7 +179,10 @@ $end = $end_set ? $_GET['end'] : DATE_MAX;
       </div>
 <?php
 if (isset($_SESSION['pid'])) {
-  ?> <hr /> <?
+  ?>
+  <hr />
+    <form method="GET" action="">
+  <?
   if ($begin != $end || $begin != $today || $end != $today) {
     // We want to only display the value if the user specified it
     // themselves.  Otherwise, we want the default value to show.
@@ -166,8 +190,12 @@ if (isset($_SESSION['pid'])) {
     ?> <hr />
   <? }
   ?><p>Select Schedule to View</p><?php
-  display_friend_filter(12345);
-  ?><hr /><?php
+  $friends = retrieve_friend_names($mysqli);
+  display_friend_filter($friends);
+  ?>
+  <hr />
+  </form>
+  <?php
   // Only show information about invitations belonging to this
   // particular user.
   display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
