@@ -3,6 +3,31 @@
 require_once('mysql.php');
 session_start();
 
+function display_date_filter() {
+  ?>
+  <div class="filter container">
+    <div class="row">
+      <div class="col-md-12">
+        <p>Only show events between</p>
+      </div>
+    </div>
+    <div class="row">
+      <form method="GET">
+        <div class="col-md-2">
+          <input type="text" name="begin" placeholder="The beginning of time" />
+        </div>
+        <div class="col-md-2">
+          <input type="text" name="end" placeholder="infinity and beyond" />
+        </div>
+        <div class="col-md-1">
+          <input type="submit" />
+        </div>
+      </form>
+    </div>
+  </div>
+  <?php
+}
+
 function display_event_tables($mysqli, $pid, $date) {
   if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
@@ -91,29 +116,12 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
     <div class="row">
       <div class="span12">
         <h1>My Calendar</h1>
-        <hr />
-        <p>Only see events between:</p>
       </div>
 <?php
 if (isset($_SESSION['pid'])) {
-?>
-      <div class="filter container">
-        <div class="row">
-          <form method="GET">
-            <div class="col-md-2">
-              <input type="text" name="begin" placeholder="The beginning of time" />
-            </div>
-            <div class="col-md-2">
-              <input type="text" name="end" placeholder="infinity and beyond" />
-            </div>
-            <div class="col-md-1">
-              <input type="submit" />
-            </div>
-          </form>
-        </div>
-      </div>
-      <hr />
-<?php
+  ?> <hr /> <?
+  display_date_filter();
+  ?> <hr /> <?
   // Only show information about invitations belonging to this
   // particular user.
   display_event_tables($mysqli, $_SESSION['pid'], $_SESSION['date']);
