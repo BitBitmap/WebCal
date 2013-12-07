@@ -2,6 +2,7 @@
 <?php
 require_once('mysql.php');
 require_once('status.php');
+require_once('dates.php');
 
 session_start();
 
@@ -10,8 +11,33 @@ session_start();
 $status = null;
 $status_message = "";
 
-// Inserts an event into the database.
-function organize_event($mysqli, $pid, $start, $duration, $description, $date) {
+function get_last_insert_id($mysqli) {
+  if (!($stmt = $mysqli->prepare("SELECT LAST_INSERT_ID()"))) {
+    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception("Execution failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->bind_result($id)) {
+    throw new Exception("Result binding failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->fetch()) {
+    throw new Exception("Fetching failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->close()) {
+    throw new Exception("Closing eid fetching failed with error: ".$mysqli->error);
+  }
+  return $id;
+}
+
+/* Inserts an event into the database.
+
+$dates is an array of date strings.
+
+** POTENTIAL SECURITY RISK **
+Be sure to sanitize $dates before running this function!
+*/
+function organize_event($mysqli, $pid, $start, $duration, $description, $dates) {
   // Start by inserting event...
   if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
     $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
@@ -22,16 +48,23 @@ function organize_event($mysqli, $pid, $start, $duration, $description, $date) {
     throw new Exception("Statement preparation failed with error: ".$mysqli->error);
   }
 
-  // Now insert the date...
-  if($stmt = $mysqli -> prepare("INSERT INTO eventdate (eid, edate) VALUES (LAST_INSERT_ID(), ?)")) {
-    if (!$stmt -> bind_param("s", $date)) {
-      throw new Exception("Statement binding failed: ".$mysqli->error);
-    }
+  $eid = get_last_insert_id($mysqli);
+
+  // Now insert the dates... If the dates are properly sanitized, then
+  // building the query string via string concatenation should be ok.
+  $insert_date_stmt = "INSERT INTO eventdate (eid, edate) VALUES ";
+  foreach ($dates as $date) {
+    $insert_date_stmt .= "($eid, '$date'), ";
+  }
+  // Remove the trailing ", "
+  $insert_date_stmt = substr($insert_date_stmt, 0, strlen($insert_date_stmt) - 2);
+
+  if($stmt = $mysqli -> prepare($insert_date_stmt)) {
     if (!$stmt -> execute()) {
-      throw new Exception("Execution failed with error: ".$mysqli->error);
+      throw new Exception("Execution of the statement <b>$insert_date_stmt</b> failed with error: ".$mysqli->error);
     }
   } else {
-    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+    throw new Exception("Statement preparation for <b>$insert_date_stmt</b> failed with error: ".$mysqli->error);
   }
 
 }
@@ -43,9 +76,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start = $_POST['start-time'];
     $duration = $_POST['duration'];
     $description = $_POST['description'];
-    $date = $_POST['dates'];
+
+    // Collect the list of dates that we should add. We should make sure
+    // that each date is an actual date, and we be very particular at
+    // which values we accept by carefully looking at the keys in the
+    // POST variable.
+    $dates = array();
+    foreach ($_POST as $key => $value) {
+      if ((strpos($key, "date-") === 0) && is_numeric(substr($key, 5))) {
+        $dates[count($dates)] = parse_date($value);
+      }
+    }
+
     try {
-      organize_event($mysqli, $pid, $start, $duration, $description, $date);
+      organize_event($mysqli, $pid, $start, $duration, $description, $dates);
       $status = Status::Success;
       $status_message = "Event successfully created!";
     } catch (Exception $e) {
@@ -67,6 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <?php include_once('header.php'); ?>
   <link href="css/organize.css" rel="stylesheet">
+  <script src="js/organize.js" type="text/javascript"></script>
 </head>
 <body>
 <?php require_once('navbar.php'); ?>
@@ -100,7 +145,12 @@ if (isset($_SESSION['pid'])) {
               <tr>
                 <td>Dates</td>
                 <td>
-                  <textarea name="dates" id="event-dates"></textarea>
+                  <div class="date-entries">
+                    <input type="text" class="datepicker event-date" name="date-0" />
+                  </div>
+                  <!-- type needs to be redundantly re-specified so that it does not trigger a form submission... -->
+                  <button type="button" class="add-date"><span class="glyphicon glyphicon-plus"></span></button>
+                  <button type="button" class="remove-date"><span class="glyphicon glyphicon-minus"></span></button>
                 </td>
               </tr>
             </table>
@@ -115,5 +165,6 @@ if (isset($_SESSION['pid'])) {
       </div>
     </div>
   </div>
+  <?php enable_datepicker(); ?>
 </body>
 </html>
