@@ -4,6 +4,8 @@ require_once('mysql.php');
 require_once('dates.php');
 require_once('scheduler.php');
 session_start();
+
+
 ?>
 
 
