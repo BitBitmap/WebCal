@@ -99,7 +99,7 @@ function display_event_tables($mysqli, $pid, $begin, $end) {
 
   if ($stmt->num_rows == 0) {
   ?>
-    <p>You do not have any events to go to.</p>
+    <p>No scheduled events.</p>
   <?php
   }
 }
@@ -198,7 +198,7 @@ if (isset($_SESSION['pid'])) {
   <?php
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
+  display_event_tables($mysqli, $_GET['pid'], $begin, $end);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
