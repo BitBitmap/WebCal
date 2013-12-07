@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <?php include_once('header.php'); ?>
   <link href="css/organize.css" rel="stylesheet">
+  <script src="js/organize.js" type="text/javascript"></script>
 </head>
 <body>
 <?php require_once('navbar.php'); ?>
@@ -113,7 +114,12 @@ if (isset($_SESSION['pid'])) {
               <tr>
                 <td>Dates</td>
                 <td>
-                  <input type="text" class="datepicker event-date" name="date-0" />
+                  <div class="date-entries">
+                    <input type="text" class="datepicker event-date" name="date-0" />
+                  </div>
+                  <!-- type needs to be redundantly re-specified so that it does not trigger a form submission... -->
+                  <button type="button" class="add-date"><span class="glyphicon glyphicon-plus"></span></button>
+                  <button type="button" class="remove-date"><span class="glyphicon glyphicon-minus"></span></button>
                 </td>
               </tr>
             </table>
