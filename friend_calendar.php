@@ -5,7 +5,7 @@ require_once('dates.php');
 require_once('scheduler.php');
 session_start();
 
-function retrieve_friend_names($mysqli) {
+function retrieve_friend_info($mysqli) {
   $friends = array();
   if (!($stmt = $mysqli -> prepare("SELECT pid, fname, lname FROM person"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
@@ -90,7 +90,7 @@ if (isset($_SESSION['pid'])) {
     ?> <hr />
   <? }
   ?><p>Select Schedule to View</p><?php
-  $friends = retrieve_friend_names($mysqli);
+  $friends = retrieve_friend_info($mysqli);
   display_friend_filter($friends);
   ?>
   <hr />
@@ -98,7 +98,7 @@ if (isset($_SESSION['pid'])) {
   <?php
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_GET['pid'], parse_date($begin), parse_date($end));
+  display_friend_events($mysqli, $_GET['pid'], $_SESSION['pid'], parse_date($begin), parse_date($end));
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";

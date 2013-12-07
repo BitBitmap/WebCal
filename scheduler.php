@@ -66,6 +66,61 @@ function display_event_tables($mysqli, $pid, $begin, $end) {
   }
 }
 
+/*
+Displays a table of events for the specified user, in the viewpoint of
+$viewer.
+
+If the viewer has a higher friendship value than the privacy of the
+event, then the event will be displayed.
+*/
+function display_friend_events($mysqli, $pid, $viewer, $begin, $end) {
+  if (!($stmt = $mysqli -> prepare(
+    "SELECT eid, start_time, duration, edate, description, event.pid, response, visibility, friend_of.level
+      FROM event
+      NATURAL JOIN eventdate
+      JOIN invited
+      USING ( eid )
+      JOIN friend_of ON ( invited.pid = sharer )
+      WHERE invited.pid = ?
+      AND viewer = ? AND ? <= edate AND edate <= ?
+      ORDER BY edate, start_time"))) {
+    throw new Exception("Preparing statement failed: ".$mysqli->error);
+  }
+  if (!$stmt->bind_param('ssss', $pid, $viewer, $begin, $end)) {
+    throw new Exception("Binding argument failed: ".$mysqli->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception("Execution failed: ".$mysqli->error);
+  }
+  if (!$stmt->store_result()) {
+    throw new Exception("Store result failed: ".$mysqli->error);
+  }
+  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility, $friendship_level);
+
+  for ($i = 0; $i < $stmt->num_rows; ++$i) {
+    if (!$stmt -> fetch()) {
+      throw new Exception("Error fetching: ".$mysqli->error);
+    }
+    try {
+      display_row_to_viewer($eid, $viewer, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $friendship_level);
+    } catch (Exception $e) {
+      // Display the error message so we can debug it...
+      ?>
+      <div class='error'>
+        <p>Oops! This is embarassing. Something bad happened occurred...</p>
+        <p><?php echo $e; ?></p>
+      </div>
+      <?php
+    }
+  }
+
+  if ($stmt->num_rows == 0) {
+  ?>
+    <p>You do not have any events to go to.</p>
+  <?php
+  }
+}
+
 function display_own_events($mysqli, $pid, $begin, $end) {
   if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE event.pid=? AND ? <= edate AND edate <= ? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
@@ -103,6 +158,47 @@ function display_own_events($mysqli, $pid, $begin, $end) {
     <p>You do not have any events created.</p>
   <?php
   }
+}
+
+function display_row_to_viewer($eid, $viewer, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date, $friendship_level) {
+?>
+  <table class='event color-code'>
+    <tr>
+      <td>Date</td>
+      <td><?php echo $date; ?></td>
+    </tr>
+    <tr>
+      <td>Event <?php echo $eid; ?> start time</td>
+      <td><?php echo $start_time; ?></td>
+    </tr>
+    <tr>
+      <td>Duration</td>
+      <td><?php echo $duration; ?></td>
+    </tr>
+    <?php if ($friendship_level >= $visibility) { ?>
+    <tr>
+      <td>Description</td>
+      <td><?php echo htmlentities($description); ?></td>
+    </tr>
+    <tr>
+      <td>Organizer</td>
+      <td><?php echo $organizer_pid; ?></td>
+    </tr>
+    <tr>
+      <td>Response</td>
+      <td><?php echo $response; ?></td>
+    </tr>
+    <tr>
+      <td>Visibility</td>
+      <td><?php echo $visibility; ?></td>
+    </tr>
+    <?php } else { ?>
+    <tr>
+      <td colspan=2>User is busy.</td>
+    </tr>
+    <?php } ?>
+  </table>
+<?php
 }
 
 function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date) {
