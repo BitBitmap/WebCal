@@ -4,6 +4,56 @@ require_once('mysql.php');
 require_once('status.php');
 
 session_start();
+
+function display_friend_level_form($mysqli) {
+  ?>
+  <form method="post">
+  <table class='event color-code'>
+    <tr>
+      <td>Friend</td>
+      <td>Friend Level</td>
+    </tr>
+  <?php
+  if (!($stmt = $mysqli -> prepare("SELECT pid, fname, lname, level
+    FROM person
+    LEFT OUTER JOIN friend_of ON friend_of.viewer = person.pid
+    WHERE (sharer IS NULL
+    OR sharer=?)
+    AND viewer!=?"))) {
+    throw new Exception("Preparing statement failed: ".$mysqli->error);
+  }
+  if (!$stmt -> bind_param("ss", $_SESSION['pid'], $_SESSION['pid'])) {
+    throw new Exception("Binding argument failed: ".$mysqli->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception("Execution failed: ".$mysqli->error);
+  }
+  if (!$stmt->store_result()) {
+    throw new Exception("Store result failed: ".$mysqli->error);
+  }
+  $stmt -> bind_result($pid, $first_name, $last_name, $level);
+
+  $friends = array();
+  for ($i = 0; $i < $stmt->num_rows; ++$i) {
+    if (!$stmt -> fetch()) {
+      throw new Exception("Error fetching: ".$mysqli->error);
+    }
+    // Begin create a row for each friend.
+    $viewer_name = $first_name.' '.$last_name;
+  ?>
+  <tr>
+    <td><?php echo $viewer_name; ?></td>
+    <td><input name="<?php echo $pid; ?>" type="text" value="<?php echo $level; ?>"></td>
+  </tr>
+<?php
+  } // End create a row for each friend.
+?>
+   </table>
+   <input type="submit" />
+  </form>
+<?php
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -46,46 +96,8 @@ if (isset($_SESSION['pid'])) {
   }
 
   display_status($status, $status_message);
+  display_friend_level_form($mysqli);
 
-  // Only show information about invitations belonging to this
-  // particular user.
-  if ($stmt = $mysqli -> prepare(
-    "SELECT pid, fname, lname, level
-    FROM person
-    LEFT OUTER JOIN friend_of ON friend_of.viewer = person.pid
-    WHERE (sharer IS NULL
-    OR sharer=?)
-    AND viewer!=?")) {
-
-    $stmt -> bind_param("ss", $_SESSION['pid'], $_SESSION['pid']);
-    $stmt -> execute();
-    $stmt -> bind_result($pid, $first_name, $last_name, $level);
-
-?>
-          <form method="post">
-            <table class='event color-code'>
-              <tr>
-                <td>Friend</td>
-                <td>Friend Level</td>
-              </tr>
-<?php
-
-    while ($success = ($stmt -> fetch())) {
-      // Begin create a row for each friend.
-      $viewer_name = $first_name.' '.$last_name;
-?>
-              <tr>
-                <td><?php echo $viewer_name; ?></td>
-                <td><input name="<?php echo $pid; ?>" type="text" value="<?php echo $level; ?>"></td>
-              </tr>
-<?php
-    } // End create a row for each friend.
-?>
-           </table>
-           <input type="submit" />
-          </form>
-<?php
-  }
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
