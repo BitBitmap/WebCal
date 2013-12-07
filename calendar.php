@@ -108,6 +108,17 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 <?php
 }
 
+// We must generate the URL in this format, since we're comparing
+// strings to figure out if the user wanted to get today's schedule. Our
+// javascript date-selection utility escapes the '/' character, so we
+// can safely generate them here. This isn't a guaranteed approach,
+// since the user can manually type in the '/' characters themselves.
+$today = date("Y/m/d");
+$begin_set = (isset($_GET['begin']) && $_GET['begin'] != "");
+$end_set = (isset($_GET['end']) && $_GET['end'] != "");
+
+$begin = $begin_set ? $_GET['begin'] : DATE_MIN;
+$end = $end_set ? $_GET['end'] : DATE_MAX;
 
 ?>
 
@@ -121,21 +132,29 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
   <div class="container" style="padding-top: 60px;">
     <div class="row">
       <div class="span12">
-        <h1>My Calendar</h1>
+        <h1>
+          <?php
+          // This will only work if we get here from today.php, or if
+          // the user manually types in the dates with '/' as
+          // separators. This is because the date selection utility we
+          // use will escape the '/' characters.
+          if ($begin == $end && $begin == $today) {
+          ?>
+            Today's Calendar
+          <?php } else { ?>
+            Calendar
+          <?php } ?>
+        </h1>
       </div>
 <?php
 if (isset($_SESSION['pid'])) {
   ?> <hr /> <?
-  $begin_set = (isset($_GET['begin']) && $_GET['begin'] != "");
-  $end_set = (isset($_GET['end']) && $_GET['end'] != "");
-
-  $begin = $begin_set ? $_GET['begin'] : DATE_MIN;
-  $end = $end_set ? $_GET['end'] : DATE_MAX;
-
-  // We want to only display the value if the user specified it
-  // themselves.  Otherwise, we want the default value to show.
-  display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
-  ?> <hr /> <?
+  if ($begin != $end || $begin != $today || $end != $today) {
+    // We want to only display the value if the user specified it
+    // themselves.  Otherwise, we want the default value to show.
+    display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
+    ?> <hr />
+  <? }
   // Only show information about invitations belonging to this
   // particular user.
   display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);

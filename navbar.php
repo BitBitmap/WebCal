@@ -18,7 +18,7 @@
                   <span class="glyphicon glyphicon-chevron-down"></span>
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a href="calendar.php">Today's Schedule</a></li>
+                  <li><a href="today.php">Today's Schedule</a></li>
                   <li><a href="calendar.php">My Schedule</a></li>
                   <li><a href="calendar.php">View Friend's Schedule</a></li>
                 </ul>
