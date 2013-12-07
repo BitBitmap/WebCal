@@ -31,6 +31,7 @@
                 <ul class="dropdown-menu">
                   <li><a href="calendar.php">Pending Invitations</a></li>
                   <li><a href="calendar.php">All Invitations</a></li>
+                  <li><a href="invitations.php">Respond to Invitation</a></li>
                 </ul>
               </li>
               <li class="dropdown">
