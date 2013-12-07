@@ -1,7 +1,9 @@
 <?PHP error_reporting(-1); ?>
 <?php
 require_once('mysql.php');
+require_once('dates.php');
 require_once('status.php');
+require_once('scheduler.php');
 session_start();
 
 // Used to show if a request was successful, or if it resulted in an
@@ -48,16 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link href="css/organize.css" rel="stylesheet">
 </head>
 <body>
-<?php require_once('navbar.php'); ?>
+  <?php require_once('navbar.php'); ?>
   <div class="container" style="padding-top: 60px;">
     <div class="row">
       <div class="span12">
         <h1>Respond to invitation</h1>
-<?php
-if (isset($_SESSION['pid'])) {
+        <?php
+        if (isset($_SESSION['pid'])) {
   // Only allow user to create event if they are logged in.
-  display_status($status, $status_message);
-?>
+          display_status($status, $status_message);
+          display_event_tables($mysqli, $_SESSION['pid'], DATE_MIN, DATE_MAX);
+          ?>
           <form method="post">
             <table class="event">
               <tr>
@@ -73,12 +76,12 @@ if (isset($_SESSION['pid'])) {
             </table>
             <input type="submit" value="Submit" />
           </form>
-<?php
-} else {
+          <?php
+        } else {
   // User is not logged in.
-  echo "You need to log in to view this page!";
-}
-?>
+          echo "You need to log in to view this page!";
+        }
+        ?>
       </div>
     </div>
   </div>
