@@ -1,48 +1,44 @@
 <?PHP error_reporting(-1); ?>
 <?php
 require_once('mysql.php');
+require_once('dates.php');
 session_start();
 
-function fetch_dates($mysqli, $eid) {
-  if (!($date_stmt = $mysqli->prepare("SELECT edate FROM eventdate WHERE eid=?"))) {
-    throw new Exception("Preparing statement failed: ".$mysqli->error);
-  }
-  if (!$date_stmt->bind_param('s', $eid)) {
-    throw new Exception("Binding argument failed: ".$mysqli->error);
-  }
+/*
+Displays a date filter.
 
-  if (!$date_stmt->bind_result($date)) {
-    throw new Exception("Binding result failed: ".$mysqli->error);
-  }
-
-  if (!$date_stmt->execute()) {
-    throw new Exception("Execution failed: ".$mysqli->error);
-  }
-
-  if (!$date_stmt->store_result()) {
-    throw new Exception("Store result failed: ".$mysqli->error);
-  }
-
-  $dates = array();
-  $rowNumber = 0;
-  for ($i = 0; $i < $date_stmt->num_rows; ++$i) {
-    if (!$date_stmt->fetch()) {
-      throw new Exception("Fetching failed: ".$mysql->error);
-    }
-    $dates[$rowNumber] = $date;
-  }
-
-  return $dates;
+$begin and $end are the initial values of the filter.
+*/
+function display_date_filter($begin, $end) {
+  ?>
+  <div class="filter container">
+    <div class="row">
+      <div class="col-md-12">
+        <p>Only show events between</p>
+      </div>
+    </div>
+    <div class="row">
+      <form method="GET" action="">
+        <div class="col-md-2">
+          <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
+        </div>
+        <div class="col-md-2">
+          <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
+        </div>
+        <div class="col-md-1">
+          <input type="submit" value="Filter" />
+        </div>
+      </form>
+    </div>
+  </div>
+  <?php
 }
 
-function display_event_tables($mysqli, $pid) {
-  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, description, event.pid, response, visibility FROM event JOIN invited USING (eid) WHERE invited.pid=?"))) {
+function display_event_tables($mysqli, $pid, $begin, $end) {
+  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? AND ? <= edate AND edate <= ? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
-  if (!($date_stmt = $mysqli->prepare("SELECT edate FROM eventdate WHERE eid=?"))) {
-    throw new Exception("Preparing statement failed: ".$mysqli->error);
-  }
-  if (!$stmt->bind_param('i', $pid)) {
+  if (!$stmt->bind_param('sss', $pid, $begin, $end)) {
     throw new Exception("Binding argument failed: ".$mysqli->error);
   }
   if (!$stmt->execute()) {
@@ -51,29 +47,14 @@ function display_event_tables($mysqli, $pid) {
   if (!$stmt->store_result()) {
     throw new Exception("Store result failed: ".$mysqli->error);
   }
-  $stmt -> bind_result($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility);
+  $stmt -> bind_result($eid, $start_time, $duration, $date, $description, $organizer_pid, $response, $visibility);
 
-  $rows = array();
   for ($i = 0; $i < $stmt->num_rows; ++$i) {
     if (!$stmt -> fetch()) {
       throw new Exception("Error fetching: ".$mysqli->error);
     }
-    $rows[$i] = array(
-        'eid' => $eid,
-        'start_time' => $start_time,
-        'duration' => $duration,
-        'description' => $description,
-        'organizer_pid' => $organizer_pid,
-        'response' => $response,
-        'visibility' => $visibility
-      );
-  }
-
-  for ($i = 0; $i < $stmt->num_rows; ++$i) {
     try {
-      $row = $rows[$i];
-      $dates = fetch_dates($mysqli, $row['eid']);
-      display_row($row['eid'], $row['start_time'], $row['duration'], $row['description'], $row['organizer_pid'], $row['response'], $row['visibility'], $dates);
+      display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date);
     } catch (Exception $e) {
       // Display the error message so we can debug it...
       ?>
@@ -92,9 +73,13 @@ function display_event_tables($mysqli, $pid) {
   }
 }
 
-function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $dates) {
+function display_row($eid, $start_time, $duration, $description, $organizer_pid, $response, $visibility, $date) {
 ?>
   <table class='event color-code'>
+    <tr>
+      <td>Date</td>
+      <td><?php echo $date; ?></td>
+    </tr>
     <tr>
       <td>Event <?php echo $eid; ?> start time</td>
       <td><?php echo $start_time; ?></td>
@@ -104,16 +89,12 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
       <td><?php echo $duration; ?></td>
     </tr>
     <tr>
-      <td>Organizer</td>
-      <td><?php echo $organizer_pid; ?></td>
-    </tr>
-    <tr>
       <td>Description</td>
       <td><?php echo htmlentities($description); ?></td>
     </tr>
     <tr>
-      <td>Dates</td>
-      <td><?php echo JSON_encode($dates); ?></td>
+      <td>Organizer</td>
+      <td><?php echo $organizer_pid; ?></td>
     </tr>
     <tr>
       <td>Response</td>
@@ -127,11 +108,22 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 <?php
 }
 
+// We must generate the URL in this format, since we're comparing
+// strings to figure out if the user wanted to get today's schedule. Our
+// javascript date-selection utility escapes the '/' character, so we
+// can safely generate them here. This isn't a guaranteed approach,
+// since the user can manually type in the '/' characters themselves.
+$today = date("Y/m/d");
+$begin_set = (isset($_GET['begin']) && $_GET['begin'] != "");
+$end_set = (isset($_GET['end']) && $_GET['end'] != "");
+
+$begin = $begin_set ? $_GET['begin'] : DATE_MIN;
+$end = $end_set ? $_GET['end'] : DATE_MAX;
 
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <?php require_once('header.php'); ?>
 </head>
@@ -140,19 +132,40 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
   <div class="container" style="padding-top: 60px;">
     <div class="row">
       <div class="span12">
-        <h1>My Calendar</h1>
+        <h1>
+          <?php
+          // This will only work if we get here from today.php, or if
+          // the user manually types in the dates with '/' as
+          // separators. This is because the date selection utility we
+          // use will escape the '/' characters.
+          if ($begin == $end && $begin == $today) {
+          ?>
+            Today's Calendar
+          <?php } else { ?>
+            Calendar
+          <?php } ?>
+        </h1>
+      </div>
 <?php
 if (isset($_SESSION['pid'])) {
+  ?> <hr /> <?
+  if ($begin != $end || $begin != $today || $end != $today) {
+    // We want to only display the value if the user specified it
+    // themselves.  Otherwise, we want the default value to show.
+    display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
+    ?> <hr />
+  <? }
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_SESSION['pid']);
+  display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
 }
 ?>
-</div>
-</div>
-</div>
+      </div>
+    </div>
+  </div>
+  <?php enable_datepicker(); ?>
 </body>
 </html>
