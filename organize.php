@@ -2,6 +2,7 @@
 <?php
 require_once('mysql.php');
 require_once('status.php');
+require_once('dates.php');
 
 session_start();
 
@@ -11,7 +12,8 @@ $status = null;
 $status_message = "";
 
 // Inserts an event into the database.
-function organize_event($mysqli, $pid, $start, $duration, $description, $date) {
+function organize_event($mysqli, $pid, $start, $duration, $description, $dates) {
+  $date = $dates[0];
   // Start by inserting event...
   if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
     $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
@@ -43,9 +45,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $start = $_POST['start-time'];
     $duration = $_POST['duration'];
     $description = $_POST['description'];
-    $date = $_POST['dates'];
+
+    // Collect the list of dates that we should add. We should make sure
+    // that each date is an actual date, and we be very particular at
+    // which values we accept by carefully looking at the keys in the
+    // POST variable.
+    $dates = array();
+    foreach ($_POST as $key => $value) {
+      if ((strpos($key, "date-") === 0) && is_numeric(substr($key, 5))) {
+        $dates[count($dates)] = parse_date($value);
+      }
+    }
+
     try {
-      organize_event($mysqli, $pid, $start, $duration, $description, $date);
+      organize_event($mysqli, $pid, $start, $duration, $description, $dates);
       $status = Status::Success;
       $status_message = "Event successfully created!";
     } catch (Exception $e) {
@@ -100,7 +113,7 @@ if (isset($_SESSION['pid'])) {
               <tr>
                 <td>Dates</td>
                 <td>
-                  <textarea name="dates" id="event-dates"></textarea>
+                  <input type="text" class="datepicker event-date" name="date-0" />
                 </td>
               </tr>
             </table>
@@ -115,5 +128,6 @@ if (isset($_SESSION['pid'])) {
       </div>
     </div>
   </div>
+  <?php enable_datepicker(); ?>
 </body>
 </html>

@@ -4,6 +4,13 @@ define("DATE_MIN", "1000-01-01");
 define("DATE_MAX", "9999-12-31");
 
 /*
+
+*/
+function parse_date($value='') {
+  return date('Y-m-d', strtotime($value));
+}
+
+/*
 This script will enable click-select functionality for dates.
 */
 function enable_datepicker() {
