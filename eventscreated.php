@@ -33,18 +33,15 @@ session_start();
       </div>
 <?php
 if (isset($_SESSION['pid'])) {
-  ?>
-  <hr />
-    <form method="GET" action=""><?
+  ?> <hr /> <?
   if ($begin != $end || $begin != $today || $end != $today) {
     // We want to only display the value if the user specified it
     // themselves.  Otherwise, we want the default value to show.
     display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
-    ?> </form><hr />
+    ?> <hr />
   <? }
-  // Only show information about invitations belonging to this
-  // particular user.
-  display_event_tables($mysqli, $_SESSION['pid'], parse_date($begin), parse_date($end));
+  // Only show information about events belonging to this particular user.
+  display_own_events($mysqli, $_SESSION['pid'], $begin, $end);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
@@ -56,4 +53,3 @@ if (isset($_SESSION['pid'])) {
   <?php enable_datepicker(); ?>
 </body>
 </html>
-
