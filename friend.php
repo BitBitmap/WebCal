@@ -25,8 +25,8 @@ $status_message = "";
 if (isset($_SESSION['pid'])) {
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // User is logged in, check for validity.
-    $pid = $_POST['person'];
-    $eid = $_POST['event'];
+    // $pid = $_POST['person'];
+    // $eid = $_POST['event'];
 
     foreach ($_POST as $friend_pid => $friend_level) {
       if ($stmt = $mysqli -> prepare("INSERT INTO friend_of (sharer, viewer, level) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE level=?")) {

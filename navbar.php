@@ -39,6 +39,7 @@
                   <span class="glyphicon glyphicon-chevron-down"></span>
                   </a>
                 <ul class="dropdown-menu">
+                  <li><a href="eventscreated.php">Events Created</a></li>
                   <li><a href="organize.php">Organize Event</a></li>
                   <li><a href="invite.php">Invite To Event</a></li>
                 </ul>

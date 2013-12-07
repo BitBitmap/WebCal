@@ -40,9 +40,8 @@ if (isset($_SESSION['pid'])) {
     display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
     ?> <hr />
   <? }
-  // Only show information about invitations belonging to this
-  // particular user.
-  display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
+  // Only show information about events belonging to this particular user.
+  display_own_events($mysqli, $_SESSION['pid'], $begin, $end);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
