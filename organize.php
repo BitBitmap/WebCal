@@ -11,9 +11,33 @@ session_start();
 $status = null;
 $status_message = "";
 
-// Inserts an event into the database.
+function get_last_insert_id($mysqli) {
+  if (!($stmt = $mysqli->prepare("SELECT LAST_INSERT_ID()"))) {
+    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception("Execution failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->bind_result($id)) {
+    throw new Exception("Result binding failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->fetch()) {
+    throw new Exception("Fetching failed with error: ".$mysqli->error);
+  }
+  if (!$stmt->close()) {
+    throw new Exception("Closing eid fetching failed with error: ".$mysqli->error);
+  }
+  return $id;
+}
+
+/* Inserts an event into the database.
+
+$dates is an array of date strings.
+
+** POTENTIAL SECURITY RISK **
+Be sure to sanitize $dates before running this function!
+*/
 function organize_event($mysqli, $pid, $start, $duration, $description, $dates) {
-  $date = $dates[0];
   // Start by inserting event...
   if($stmt = $mysqli -> prepare("INSERT INTO event (start_time, duration, description, pid) VALUES (?, ?, ?, ?)")) {
     $stmt -> bind_param("ssss", $start, $duration, $description, $pid);
@@ -24,16 +48,23 @@ function organize_event($mysqli, $pid, $start, $duration, $description, $dates) 
     throw new Exception("Statement preparation failed with error: ".$mysqli->error);
   }
 
-  // Now insert the date...
-  if($stmt = $mysqli -> prepare("INSERT INTO eventdate (eid, edate) VALUES (LAST_INSERT_ID(), ?)")) {
-    if (!$stmt -> bind_param("s", $date)) {
-      throw new Exception("Statement binding failed: ".$mysqli->error);
-    }
+  $eid = get_last_insert_id($mysqli);
+
+  // Now insert the dates... If the dates are properly sanitized, then
+  // building the query string via string concatenation should be ok.
+  $insert_date_stmt = "INSERT INTO eventdate (eid, edate) VALUES ";
+  foreach ($dates as $date) {
+    $insert_date_stmt .= "($eid, '$date'), ";
+  }
+  // Remove the trailing ", "
+  $insert_date_stmt = substr($insert_date_stmt, 0, strlen($insert_date_stmt) - 2);
+
+  if($stmt = $mysqli -> prepare($insert_date_stmt)) {
     if (!$stmt -> execute()) {
-      throw new Exception("Execution failed with error: ".$mysqli->error);
+      throw new Exception("Execution of the statement <b>$insert_date_stmt</b> failed with error: ".$mysqli->error);
     }
   } else {
-    throw new Exception("Statement preparation failed with error: ".$mysqli->error);
+    throw new Exception("Statement preparation for <b>$insert_date_stmt</b> failed with error: ".$mysqli->error);
   }
 
 }
