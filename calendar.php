@@ -26,7 +26,7 @@ function display_date_filter($begin, $end) {
           <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
         </div>
         <div class="col-md-1">
-          <input type="submit" value="Filter" />
+          <button type="button" class="btn btn-primary">Filter</button>
         </div>
       </form>
     </div>
