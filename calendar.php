@@ -7,7 +7,7 @@ function display_event_tables($mysqli, $pid, $date) {
   if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
-  if (!$stmt->bind_param('i', $pid)) {
+  if (!$stmt->bind_param('s', $pid)) {
     throw new Exception("Binding argument failed: ".$mysqli->error);
   }
   if (!$stmt->execute()) {
