@@ -1,9 +1,15 @@
 <?PHP error_reporting(-1); ?>
 <?php
 require_once('mysql.php');
+require_once('dates.php');
 session_start();
 
-function display_date_filter() {
+/*
+Displays a date filter.
+
+$begin and $end are the initial values of the filter.
+*/
+function display_date_filter($begin, $end) {
   ?>
   <div class="filter container">
     <div class="row">
@@ -12,15 +18,15 @@ function display_date_filter() {
       </div>
     </div>
     <div class="row">
-      <form method="GET">
+      <form method="GET" action="">
         <div class="col-md-2">
-          <input type="text" name="begin" placeholder="The beginning of time" />
+          <input type="text" class="datepicker" name="begin" placeholder="The beginning of time" <?php if ($begin) echo "value='$begin'"; ?> />
         </div>
         <div class="col-md-2">
-          <input type="text" name="end" placeholder="infinity and beyond" />
+          <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
         </div>
         <div class="col-md-1">
-          <input type="submit" />
+          <input type="submit" value="Filter" />
         </div>
       </form>
     </div>
@@ -28,11 +34,11 @@ function display_date_filter() {
   <?php
 }
 
-function display_event_tables($mysqli, $pid, $date) {
-  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? ORDER BY edate, start_time"))) {
+function display_event_tables($mysqli, $pid, $begin, $end) {
+  if (!($stmt = $mysqli -> prepare("SELECT eid, start_time, duration, edate, description, event.pid, response, visibility FROM event NATURAL JOIN eventdate JOIN invited USING (eid) WHERE invited.pid=? AND ? <= edate AND edate <= ? ORDER BY edate, start_time"))) {
     throw new Exception("Preparing statement failed: ".$mysqli->error);
   }
-  if (!$stmt->bind_param('s', $pid)) {
+  if (!$stmt->bind_param('sss', $pid, $begin, $end)) {
     throw new Exception("Binding argument failed: ".$mysqli->error);
   }
   if (!$stmt->execute()) {
@@ -120,11 +126,19 @@ function display_row($eid, $start_time, $duration, $description, $organizer_pid,
 <?php
 if (isset($_SESSION['pid'])) {
   ?> <hr /> <?
-  display_date_filter();
+  $begin_set = (isset($_GET['begin']) && $_GET['begin'] != "");
+  $end_set = (isset($_GET['end']) && $_GET['end'] != "");
+
+  $begin = $begin_set ? $_GET['begin'] : DATE_MIN;
+  $end = $end_set ? $_GET['end'] : DATE_MAX;
+
+  // We want to only display the value if the user specified it
+  // themselves.  Otherwise, we want the default value to show.
+  display_date_filter($begin_set ? $begin : null, $end_set ? $end : null);
   ?> <hr /> <?
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_SESSION['pid'], $_SESSION['date']);
+  display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
@@ -133,5 +147,6 @@ if (isset($_SESSION['pid'])) {
       </div>
     </div>
   </div>
+  <?php enable_datepicker(); ?>
 </body>
 </html>
