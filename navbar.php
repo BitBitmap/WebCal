@@ -20,7 +20,7 @@
                 <ul class="dropdown-menu">
                   <li><a href="today.php">Today's Schedule</a></li>
                   <li><a href="calendar.php">My Schedule</a></li>
-                  <li><a href="calendar.php">View Friend's Schedule</a></li>
+                  <li><a href="friend_calendar.php">View Friend's Schedule</a></li>
                 </ul>
               </li>
               <li class="dropdown">
