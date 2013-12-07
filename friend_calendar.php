@@ -198,7 +198,7 @@ if (isset($_SESSION['pid'])) {
   <?php
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_GET['pid'], $begin, $end);
+  display_event_tables($mysqli, $_GET['pid'], parse_date($begin), parse_date($end));
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";

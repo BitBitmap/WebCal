@@ -26,7 +26,7 @@ function display_date_filter($begin, $end) {
           <input type="text" class="datepicker" name="end" placeholder="infinity and beyond" <?php if ($end) echo "value='$end'"; ?> />
         </div>
         <div class="col-md-1">
-          <button type="button" class="btn btn-primary">Filter</button>
+          <button type="submit" class="btn btn-primary">Filter</button>
         </div>
       </form>
     </div>
@@ -157,7 +157,7 @@ if (isset($_SESSION['pid'])) {
   <? }
   // Only show information about invitations belonging to this
   // particular user.
-  display_event_tables($mysqli, $_SESSION['pid'], $begin, $end);
+  display_event_tables($mysqli, $_SESSION['pid'], parse_date($begin), parse_date($end));
 } else {
   // User is not logged in.
   echo "You need to log in to view this page!";
